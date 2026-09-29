@@ -3,21 +3,10 @@ pipeline {
 
     stages {
 
-        stage('Check Flutter') {
-            steps {
-                bat 'flutter --version'
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
+                bat 'git config --global --add safe.directory C:/src/flutter'
                 bat 'flutter pub get'
-            }
-        }
-
-        stage('Analyze') {
-            steps {
-                bat 'flutter analyze'
             }
         }
 
@@ -27,25 +16,17 @@ pipeline {
             }
         }
 
-        stage('Build APK') {
+        stage('Build') {
             steps {
-                bat 'flutter build apk --release'
+                bat 'flutter build web'
             }
         }
-    }
 
-    post {
-        success {
-            echo 'Flutter project built and tested successfully!'
-        }
-
-        failure {
-            echo 'Flutter Jenkins pipeline failed!'
-        }
-
-        always {
-            archiveArtifacts artifacts: 'build\\app\\outputs\\flutter-apk\\app-release.apk',
-                             allowEmptyArchive: true
+        stage('Archive Web Build') {
+            steps {
+                archiveArtifacts artifacts: 'build\\web\\**',
+                                 fingerprint: true
+            }
         }
     }
 }
